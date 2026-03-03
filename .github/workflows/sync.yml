@@ -1,0 +1,37 @@
+name: Sync Spreadsheet A → B (DCT-2)
+
+on:
+  schedule:
+    # 毎週月曜日 午前9時 JST（= UTC 00:00）に自動実行
+    - cron: '0 0 * * 1'
+  workflow_dispatch: # GitHub UI から手動実行も可能
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # sync は docs/ を変更しないので read のみ
+
+    env:
+      FUND_ID: dct2 # ← DCT-1 リポジトリでは 'dct1' に変更すること
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Sync Spreadsheet A → B & Notify Slack
+        run: node scripts/sync-sheet.js
+        env:
+          SPREADSHEET_A_ID: ${{ secrets.SPREADSHEET_A_ID }}
+          SPREADSHEET_A_SHEET: ${{ secrets.SPREADSHEET_A_SHEET }}
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

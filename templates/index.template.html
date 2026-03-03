@@ -470,7 +470,12 @@ function updateSubFilters() {
 
 /* ===== レンダリング ===== */
 function placeholderSvg() {
-  return `<div class="news-img-placeholder"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="3" fill="#aabbcc"/><path d="M4 17l5-5 3 3 4-5 4 6H4z" fill="white" opacity="0.6"/></svg></div>`;
+  return '<div class="news-img-placeholder"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="3" fill="#aabbcc"/><path d="M4 17l5-5 3 3 4-5 4 6H4z" fill="white" opacity="0.6"/></svg></div>';
+}
+
+/* onerror から呼び出す専用関数（属性内にHTMLを埋め込まないようにする） */
+function showPlaceholder(img) {
+  img.parentElement.innerHTML = placeholderSvg();
 }
 
 function render() {
@@ -491,7 +496,7 @@ function render() {
 
   list.innerHTML = filtered.map((n) => {
     const imgHtml = n.img
-      ? `<img src="${escHtml(n.img)}" alt="${escHtml(n.company)}" loading="lazy" onerror="this.parentElement.innerHTML='${placeholderSvg().replace(/'/g, "\\'")}';">`
+      ? `<img src="${escHtml(n.img)}" alt="${escHtml(n.company)}" loading="lazy" onerror="showPlaceholder(this)">`
       : placeholderSvg();
 
     const tagHtml = n.cat2
