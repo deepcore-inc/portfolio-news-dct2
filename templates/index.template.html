@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>__FUND_LABEL__ Portfolio News</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0B1829;
+    --navy-mid: #112240;
+    --navy-light: #1a3357;
+    --accent: #4A90D9;
+    --accent-light: #6aaee8;
+    --text: #e8edf2;
+    --text-muted: #8899aa;
+    --bg: #f4f6f8;
+    --card-bg: #ffffff;
+    --border: #e0e6ed;
+    --tag-bg: #eaf1f8;
+    --tag-color: #2c5f8a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: #1a2a3a;
+    min-height: 100vh;
+  }
+
+  /* HERO */
+  .hero {
+    background: var(--navy);
+    background-image:
+      radial-gradient(ellipse at 80% 50%, rgba(74,144,217,0.08) 0%, transparent 60%),
+      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234a90d9' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    padding: 64px 0 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(74,144,217,0.3), transparent);
+  }
+
+  .hero-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+
+  .hero-eyebrow {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+    opacity: 0.9;
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(36px, 5vw, 52px);
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+
+  .hero-underline {
+    width: 40px;
+    height: 2px;
+    background: var(--accent);
+    margin-top: 20px;
+  }
+
+  .hero-meta {
+    margin-top: 20px;
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 300;
+  }
+
+  /* FUND BADGE */
+  .fund-badge {
+    background: var(--navy-mid);
+    border-bottom: 1px solid rgba(74,144,217,0.15);
+  }
+
+  .fund-badge-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+  }
+
+  .fund-label {
+    padding: 14px 24px 14px 0;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    color: #fff;
+    border-bottom: 2px solid var(--accent);
+  }
+
+  /* MAIN */
+  .main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 40px 80px;
+  }
+
+  /* MONTH NAV */
+  .month-nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .month-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: #1a2a3a;
+  }
+
+  .month-arrow {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: var(--card-bg);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: #778899;
+    transition: all 0.15s;
+    font-size: 14px;
+    text-decoration: none;
+  }
+
+  .month-arrow:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .month-arrow.disabled {
+    opacity: 0.3;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  /* FILTER */
+  .filter-section {
+    margin-bottom: 32px;
+  }
+
+  .filter-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+
+  .filter-btn {
+    padding: 7px 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: 'Noto Sans JP', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 1.5px solid var(--border);
+    background: var(--card-bg);
+    color: #556677;
+    font-weight: 400;
+  }
+
+  .filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .filter-btn.active {
+    background: var(--navy);
+    border-color: var(--navy);
+    color: #fff;
+  }
+
+  .filter-row-2 .filter-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  .filter-row-2 {
+    padding-left: 4px;
+  }
+
+  .result-count {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* NEWS LIST */
+  .news-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .news-item {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 20px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border);
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .news-item:hover .news-title {
+    color: var(--accent);
+  }
+
+  .news-img-wrap {
+    width: 120px;
+    height: 80px;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #dde4ec;
+    flex-shrink: 0;
+  }
+
+  .news-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .news-img-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #c8d6e5, #dde8f0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .news-img-placeholder svg {
+    opacity: 0.3;
+  }
+
+  .news-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .news-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .company-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: #445566;
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 3px;
+    font-size: 11px;
+    background: var(--tag-bg);
+    color: var(--tag-color);
+    font-weight: 400;
+  }
+
+  .news-title {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+    color: #1a2a3a;
+    transition: color 0.15s;
+  }
+
+  .news-date {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: 'Syne', sans-serif;
+    letter-spacing: 0.05em;
+  }
+
+  /* FOOTER */
+  footer {
+    background: var(--navy);
+    padding: 28px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  footer .footer-brand {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+  }
+
+  footer .footer-right {
+    font-size: 12px;
+    color: #4a5a6a;
+  }
+
+  @media (max-width: 600px) {
+    .hero-inner, .main { padding: 0 20px; }
+    .hero { padding: 48px 0 36px; }
+    .main { padding: 24px 20px 60px; }
+    .news-item { grid-template-columns: 90px 1fr; gap: 14px; }
+    .news-img-wrap { width: 90px; height: 60px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <p class="hero-eyebrow">Portfolio News</p>
+    <h1>News</h1>
+    <div class="hero-underline"></div>
+    <p class="hero-meta">（掲載順は初回投資実行順）</p>
+  </div>
+</header>
+
+<nav class="fund-badge">
+  <div class="fund-badge-inner">
+    <span class="fund-label">__FUND_LABEL__</span>
+  </div>
+</nav>
+
+<main class="main">
+
+  <div class="month-nav">
+    <span id="prevBtn" class="month-arrow" role="button" tabindex="0">&#8592;</span>
+    <span class="month-label" id="monthLabel">__MONTH_LABEL__</span>
+    <span id="nextBtn" class="month-arrow" role="button" tabindex="0">&#8594;</span>
+  </div>
+
+  <div class="filter-section">
+    <div class="filter-row" id="cat1Filters">
+      <button class="filter-btn active" onclick="setFilter1('all', this)">All</button>
+      <button class="filter-btn" onclick="setFilter1('資金調達', this)">資金調達</button>
+      <button class="filter-btn" onclick="setFilter1('事業進捗', this)">事業進捗</button>
+      <button class="filter-btn" onclick="setFilter1('その他', this)">その他</button>
+    </div>
+    <div class="filter-row filter-row-2" id="cat2Filters" style="display:none;"></div>
+  </div>
+
+  <p class="result-count" id="resultCount"></p>
+
+  <div class="news-list" id="newsList"></div>
+</main>
+
+<footer>
+  <span class="footer-brand">DEEPCORE Portfolio News</span>
+  <span class="footer-right">All rights reserved.</span>
+</footer>
+
+<script>
+/* ===== 注入されるデータ ===== */
+const FUND_ID = "__FUND_ID__";
+const CURRENT_MONTH = "__CURRENT_MONTH__";
+const NEWS_ITEMS = __NEWS_ITEMS_JSON__;
+const PREV_URL = __PREV_URL_JSON__;
+const NEXT_URL = __NEXT_URL_JSON__;
+
+/* ===== カテゴリ定義 ===== */
+const SUB_CATS = {
+  '資金調達': [],
+  '事業進捗': ['プロダクト', 'パートナーシップ', '導入事例'],
+  'その他': ['特集', '受賞・採択', '出版・発信', '組織・人事'],
+};
+
+/* ===== 状態 ===== */
+let currentCat1 = 'all';
+let currentCat2 = 'all';
+
+/* ===== ユーティリティ ===== */
+function escHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/* ===== ナビゲーション ===== */
+function setupNav() {
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+
+  if (PREV_URL) {
+    prevBtn.style.cursor = 'pointer';
+    prevBtn.addEventListener('click', () => { window.location.href = PREV_URL; });
+    prevBtn.addEventListener('keydown', (e) => { if (e.key === 'Enter') window.location.href = PREV_URL; });
+  } else {
+    prevBtn.classList.add('disabled');
+  }
+
+  if (NEXT_URL) {
+    nextBtn.style.cursor = 'pointer';
+    nextBtn.addEventListener('click', () => { window.location.href = NEXT_URL; });
+    nextBtn.addEventListener('keydown', (e) => { if (e.key === 'Enter') window.location.href = NEXT_URL; });
+  } else {
+    nextBtn.classList.add('disabled');
+  }
+}
+
+/* ===== フィルター ===== */
+function setFilter1(cat, btn) {
+  currentCat1 = cat;
+  currentCat2 = 'all';
+  document.querySelectorAll('#cat1Filters .filter-btn').forEach((b) => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateSubFilters();
+  render();
+}
+
+function setFilter2(cat, btn) {
+  currentCat2 = cat;
+  document.querySelectorAll('#cat2Filters .filter-btn').forEach((b) => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function updateSubFilters() {
+  const row2 = document.getElementById('cat2Filters');
+  const subs = SUB_CATS[currentCat1] || [];
+
+  if (currentCat1 === 'all' || subs.length === 0) {
+    row2.style.display = 'none';
+    return;
+  }
+
+  row2.innerHTML =
+    '<button class="filter-btn active" onclick="setFilter2(\'all\',this)">すべて</button>' +
+    subs.map((s) => `<button class="filter-btn" onclick="setFilter2('${escHtml(s)}',this)">${escHtml(s)}</button>`).join('');
+  row2.style.display = 'flex';
+}
+
+/* ===== レンダリング ===== */
+function placeholderSvg() {
+  return `<div class="news-img-placeholder"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="3" fill="#aabbcc"/><path d="M4 17l5-5 3 3 4-5 4 6H4z" fill="white" opacity="0.6"/></svg></div>`;
+}
+
+function render() {
+  const filtered = NEWS_ITEMS.filter((n) => {
+    if (currentCat1 !== 'all' && n.cat1 !== currentCat1) return false;
+    if (currentCat2 !== 'all' && n.cat2 !== currentCat2) return false;
+    return true;
+  });
+
+  document.getElementById('resultCount').textContent = `${filtered.length}件の記事`;
+
+  const list = document.getElementById('newsList');
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<p style="color:var(--text-muted);font-size:14px;padding:40px 0;">この月のニュースはありません。</p>';
+    return;
+  }
+
+  list.innerHTML = filtered.map((n) => {
+    const imgHtml = n.img
+      ? `<img src="${escHtml(n.img)}" alt="${escHtml(n.company)}" loading="lazy" onerror="this.parentElement.innerHTML='${placeholderSvg().replace(/'/g, "\\'")}';">`
+      : placeholderSvg();
+
+    const tagHtml = n.cat2
+      ? `<span class="tag">${escHtml(n.cat2)}</span>`
+      : n.cat1 && n.cat1 !== 'all'
+        ? `<span class="tag">${escHtml(n.cat1)}</span>`
+        : '';
+
+    return `
+    <a class="news-item" href="${escHtml(n.url)}" target="_blank" rel="noopener noreferrer">
+      <div class="news-img-wrap">${imgHtml}</div>
+      <div class="news-body">
+        <div class="news-meta">
+          <span class="company-name">${escHtml(n.company)}</span>
+          ${tagHtml}
+        </div>
+        <p class="news-title">${escHtml(n.title)}</p>
+        <span class="news-date">${escHtml(n.date)}</span>
+      </div>
+    </a>`;
+  }).join('');
+}
+
+/* ===== 初期化 ===== */
+document.addEventListener('DOMContentLoaded', () => {
+  setupNav();
+  render();
+});
+</script>
+</body>
+</html>

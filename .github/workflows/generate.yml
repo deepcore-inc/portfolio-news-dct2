@@ -1,0 +1,53 @@
+name: Generate Portfolio News (DCT-2)
+
+on:
+  schedule:
+    # 毎月1日 午前9時 JST（= UTC 00:00）に実行
+    - cron: '0 0 1 * *'
+  workflow_dispatch: # GitHub UI から手動実行可能
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # docs/ への commit & push に必要
+
+    env:
+      FUND_ID: dct2 # ← DCT-1 リポジトリでは 'dct1' に変更すること
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Fetch sheet data
+        run: node scripts/fetch-sheet.js
+        env:
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+
+      - name: Classify with Claude API
+        run: node scripts/classify.js
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Fetch OGP images
+        run: node scripts/fetch-ogp.js
+
+      - name: Generate HTML
+        run: node scripts/generate-html.js
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/
+          git diff --cached --quiet || git commit -m "chore: update portfolio news $(date '+%Y年%m月')"
+          git push

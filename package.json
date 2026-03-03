@@ -1,0 +1,20 @@
+{
+  "name": "portfolio-news",
+  "version": "1.0.0",
+  "description": "DEEPCORE Portfolio News Auto-Generation System",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "fetch": "node scripts/fetch-sheet.js",
+    "classify": "node scripts/classify.js",
+    "ogp": "node scripts/fetch-ogp.js",
+    "generate": "node scripts/generate-html.js",
+    "build": "npm run fetch && npm run classify && npm run ogp && npm run generate"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "googleapis": "^144.0.0"
+  }
+}
