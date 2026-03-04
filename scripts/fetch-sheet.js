@@ -78,9 +78,9 @@ async function main() {
     const meta = await sheets.spreadsheets.get({ spreadsheetId: SPREADSHEET_ID });
     const sheetList = meta.data.sheets.map(s => s.properties.title);
     console.log('[INFO] シート一覧:', sheetList.join(', '));
-    const found = sheetList.find(t => t.includes('データベース'));
+    const found = sheetList.find(t => t.includes('データベース')) || sheetList[0];
     if (!found) {
-      console.error('[ERROR] 「データベース」を含むシートが見つかりません:', sheetList.join(', '));
+      console.error('[ERROR] シートが見つかりません:', sheetList.join(', '));
       process.exit(1);
     }
     sheetTitle = found;
