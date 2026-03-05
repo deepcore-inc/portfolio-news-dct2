@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DCT-2 Portfolio News</title>
+<title>DEEPCORE TOKYO 2号ファンド Portfolio News</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -330,12 +330,45 @@
     color: #4a5a6a;
   }
 
+  .print-btn {
+    padding: 8px 20px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: 'Noto Sans JP', sans-serif;
+    cursor: pointer;
+    border: 1.5px solid var(--border);
+    background: var(--card-bg);
+    color: #556677;
+    transition: all 0.15s;
+    margin-left: auto;
+  }
+
+  .print-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
   @media (max-width: 600px) {
     .hero-inner, .main { padding: 0 20px; }
     .hero { padding: 48px 0 36px; }
     .main { padding: 24px 20px 60px; }
     .news-item { grid-template-columns: 90px 1fr; gap: 14px; }
     .news-img-wrap { width: 90px; height: 60px; }
+  }
+
+  @media print {
+    .hero { padding: 24px 0 16px; }
+    .hero h1 { font-size: 28px; }
+    .hero-meta { display: none; }
+    .fund-badge { break-after: avoid; }
+    .filter-section, .month-arrow, .print-btn { display: none !important; }
+    .main { padding: 16px 0; }
+    .month-nav { margin-bottom: 12px; }
+    .news-item { break-inside: avoid; padding: 12px 0; gap: 14px; }
+    .news-img-wrap { width: 90px; height: 60px; }
+    .news-item { grid-template-columns: 90px 1fr; }
+    footer { display: none; }
+    body { background: #fff; }
   }
 </style>
 </head>
@@ -352,7 +385,7 @@
 
 <nav class="fund-badge">
   <div class="fund-badge-inner">
-    <span class="fund-label">DCT-2</span>
+    <span class="fund-label">DEEPCORE TOKYO 2号ファンド</span>
   </div>
 </nav>
 
@@ -362,6 +395,7 @@
     <span id="prevBtn" class="month-arrow" role="button" tabindex="0">&#8592;</span>
     <span class="month-label" id="monthLabel">2026年3月</span>
     <span id="nextBtn" class="month-arrow" role="button" tabindex="0">&#8594;</span>
+    <button class="print-btn" onclick="window.print()">PDF出力</button>
   </div>
 
   <div class="filter-section">
@@ -388,7 +422,7 @@
 /* ===== 注入されるデータ ===== */
 const FUND_ID = "dct2";
 const CURRENT_MONTH = "202603";
-const NEWS_ITEMS = [{"no":"2050","company":"株式会社GenerativeX","cat1":"その他","cat2":"","title":"GenerativeX、北米最大級の製薬業界向けイベント「Pharma USA 2026」にグローバルスポンサーとして協賛","url":"https://prtimes.jp/main/html/rd/p/000000035.000124664.html","date":"2026.03.02","img":"https://prcdn.freetls.fastly.net/release_image/124664/35/124664-35-41409a3d9b5fba57e9942851e16feb67-1280x720.png?format=jpeg&amp;auto=webp&amp;fit=bounds&amp;width=2400&amp;height=1260"}];
+const NEWS_ITEMS = [{"no":"1014","company":"WOTA株式会社","cat1":"事業進捗","cat2":"パートナーシップ","title":"WOTA、佐賀県と「水循環システムの自治体間広域互助プラットフォーム」強化に向けた協定を締結","url":"https://prtimes.jp/main/html/rd/p/000000099.000033781.html","date":"2026.03.04","img":"https://prcdn.freetls.fastly.net/release_image/33781/99/33781-99-20176d473a9d17793c749767cdc145f1-3200x1945.jpg?format=jpeg&amp;auto=webp&amp;fit=bounds&amp;width=2400&amp;height=1260","notionExclude":""},{"no":"1047","company":"株式会社スマートラウンド","cat1":"その他","cat2":"組織・人事","title":"smartround、2度目のSOC2 Type2報告書を取得。1年間に渡って、セキュリティ・可用性・処理の完全性・機密保持・プライバシーの国際基準を継続的に達成。","url":"https://prtimes.jp/main/html/rd/p/000000088.000042542.html","date":"2026.03.03","img":"https://prcdn.freetls.fastly.net/release_image/42542/88/42542-88-a0e476a578fbe584ba2794ddc992aea8-1920x1008.png?format=jpeg&amp;auto=webp&amp;fit=bounds&amp;width=2400&amp;height=1260","notionExclude":""},{"no":"1060","company":"TechMagic株式会社","cat1":"事業進捗","cat2":"プロダクト","title":"中華料理店の「鍋振り」を調理ロボットが支援","url":"https://prtimes.jp/main/html/rd/p/000000094.000046356.html","date":"2026.03.03","img":"https://prcdn.freetls.fastly.net/release_image/46356/94/46356-94-04fe11bf615da47f39bdb6b74a246e45-2194x2925.jpg?format=jpeg&amp;auto=webp&amp;fit=bounds&amp;width=2400&amp;height=1260","notionExclude":""},{"no":"2058","company":"株式会社ハイヤールー","cat1":"事業進捗","cat2":"プロダクト","title":"エンジニア採用を「履歴書」から「スキル」ベースの採用に ー ハイヤールーが、独自のスキル可視化技術を用いたダイレクトリクルーティング機能をリリース","url":"https://prtimes.jp/main/html/rd/p/000000153.000075726.html","date":"2026.03.04","img":"https://prcdn.freetls.fastly.net/release_image/75726/153/75726-153-cc8282b3195322cd3de3cd33e6b8ca2d-1280x670.png?format=jpeg&amp;auto=webp&amp;fit=bounds&amp;width=2400&amp;height=1260","notionExclude":""},{"no":"2067","company":"株式会社Neautech","cat1":"その他","cat2":"特集","title":"バービー、長谷川 あかり、辻 愛沙子の3名による特別インタビュー『私をつくるのは、私。ー選択と習慣で人生をデザインするー 』を公開","url":"https://prtimes.jp/main/html/rd/p/000000036.000100322.html","date":"2026.03.03","img":"https://prcdn.freetls.fastly.net/release_image/100322/36/100322-36-5899fbe1b8f9b21d52a75d3b922a8b99-1920x1280.png?format=jpeg&amp;auto=webp&amp;fit=bounds&amp;width=2400&amp;height=1260","notionExclude":""},{"no":"2070","company":"AstroX株式会社","cat1":"事業進捗","cat2":"プロダクト","title":"Rockoonシステムを開発するAstroX、世界初のガスハイブリッドロケットエンジン（チャンバジンバル方式）TVC燃焼実験に成功","url":"https://prtimes.jp/main/html/rd/p/000000028.000101722.html","date":"2026.03.04","img":"https://prcdn.freetls.fastly.net/release_image/101722/28/101722-28-5d99f2a5c0230fdf6f770c77b1fefbab-2550x1434.png?format=jpeg&amp;auto=webp&amp;fit=bounds&amp;width=2400&amp;height=1260","notionExclude":""}];
 const PREV_URL = "202602.html";
 const NEXT_URL = null;
 
@@ -470,7 +504,12 @@ function updateSubFilters() {
 
 /* ===== レンダリング ===== */
 function placeholderSvg() {
-  return `<div class="news-img-placeholder"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="3" fill="#aabbcc"/><path d="M4 17l5-5 3 3 4-5 4 6H4z" fill="white" opacity="0.6"/></svg></div>`;
+  return '<div class="news-img-placeholder"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="3" fill="#aabbcc"/><path d="M4 17l5-5 3 3 4-5 4 6H4z" fill="white" opacity="0.6"/></svg></div>';
+}
+
+/* onerror から呼び出す専用関数（属性内にHTMLを埋め込まないようにする） */
+function showPlaceholder(img) {
+  img.parentElement.innerHTML = placeholderSvg();
 }
 
 function render() {
@@ -491,7 +530,7 @@ function render() {
 
   list.innerHTML = filtered.map((n) => {
     const imgHtml = n.img
-      ? `<img src="${escHtml(n.img)}" alt="${escHtml(n.company)}" loading="lazy" onerror="this.parentElement.innerHTML='${placeholderSvg().replace(/'/g, "\\'")}';">`
+      ? `<img src="${escHtml(n.img)}" alt="${escHtml(n.company)}" loading="lazy" onerror="showPlaceholder(this)">`
       : placeholderSvg();
 
     const tagHtml = n.cat2
