@@ -60,10 +60,14 @@ function generatePage(template, { items, month, sortedMonths, isIndex }) {
     tmpl.replace(new RegExp(marker, 'g'), () => value);
 
   let html = template;
+  const now = new Date();
+  const updatedDate = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日`;
+
   html = inject(html, '__FUND_LABEL__', FUND_LABEL);
   html = inject(html, '__FUND_ID__', FUND_ID);
   html = inject(html, '__CURRENT_MONTH__', month);
   html = inject(html, '__MONTH_LABEL__', getMonthLabel(month));
+  html = inject(html, '__UPDATED_DATE__', updatedDate);
   html = inject(html, '__NEWS_ITEMS_JSON__', JSON.stringify(items));
   html = inject(html, '__PREV_URL_JSON__', JSON.stringify(prevUrl));
   html = inject(html, '__NEXT_URL_JSON__', JSON.stringify(nextUrl));
