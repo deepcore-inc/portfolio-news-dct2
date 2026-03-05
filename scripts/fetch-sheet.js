@@ -2,7 +2,12 @@
 
 /**
  * fetch-sheet.js
- * Google Sheets からニュースデータを取得し data/news-cache.json に保存する
+ * スプレッドシートB（NewsReport-LP）からニュースデータを取得し
+ * data/news-cache.json に保存する
+ *
+ * スプレッドシートBのカラム:
+ *   日付 | No | 会社名 | ステルス | タイトル | リンク |
+ *   カテゴリ① | カテゴリ② | Notion載せない | LINKS | 掲載月
  */
 
 const { google } = require('googleapis');
@@ -36,35 +41,8 @@ const auth = new google.auth.GoogleAuth({
   scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
 });
 
-const isTarget = (row) => {
-  const no = row['No'];
-  const publicDate = row['公開日'];
-  if (!no) return false;
-  if (String(no).startsWith('L')) return false;
-  const noNum = parseInt(no, 10);
-  if (isNaN(noNum) || !(noNum >= 1000 && noNum < 3000)) return false;
-  if (!publicDate || !publicDate.trim()) return false;
-  return true;
-};
-
-const getFund = (no) => {
-  const noNum = parseInt(no, 10);
-  if (noNum >= 1000 && noNum < 2000) return 'dct1';
-  if (noNum >= 2000 && noNum < 3000) return 'dct2';
-  return null;
-};
-
-const getYearMonth = (raw) => {
-  if (!raw) return null;
-  const match = raw.trim().match(/^(\d{4})\/(\d{2})/);
-  if (!match) return null;
-  return `${match[1]}${match[2]}`;
-};
-
-const formatDate = (raw) => {
-  if (!raw) return '';
-  return raw.trim().slice(0, 10).replace(/\//g, '.');
-};
+// スプレッドシートBのカラム定義
+const COL_NAMES = ['日付', 'No', '会社名', 'ステルス', 'タイトル', 'リンク', 'カテゴリ①', 'カテゴリ②', 'Notion載せない', 'LINKS', '掲載月'];
 
 async function main() {
   console.log(`[INFO] FUND_ID: ${FUND_ID}`);
@@ -72,30 +50,25 @@ async function main() {
   const client = await auth.getClient();
   const sheets = google.sheets({ version: 'v4', auth: client });
 
-  // シート一覧を取得して「データベース」を含むシートを自動検出
+  // シート一覧を取得
   let sheetTitle;
   try {
     const meta = await sheets.spreadsheets.get({ spreadsheetId: SPREADSHEET_ID });
     const sheetList = meta.data.sheets.map(s => s.properties.title);
     console.log('[INFO] シート一覧:', sheetList.join(', '));
-    const found = sheetList.find(t => t.includes('データベース')) || sheetList[0];
-    if (!found) {
-      console.error('[ERROR] シートが見つかりません:', sheetList.join(', '));
-      process.exit(1);
-    }
-    sheetTitle = found;
+    sheetTitle = sheetList.find(t => t.includes('データベース')) || sheetList[0];
     console.log(`[INFO] 使用シート: ${sheetTitle}`);
   } catch (e) {
     console.error('[ERROR] シート情報の取得に失敗しました:', e.message);
     process.exit(1);
   }
 
-  // データ取得（シートIDを使って範囲指定）
+  // データ取得
   let rows;
   try {
     const res = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
-      range: sheetTitle,  // シート名のみ指定（全データ取得）
+      range: sheetTitle,
     });
     rows = res.data.values;
   } catch (e) {
@@ -108,50 +81,75 @@ async function main() {
     process.exit(1);
   }
 
-  const COL_DEFAULTS = ['取得日時', 'ステルス', 'No', '会社名', '公開日', 'タイトル', '詳細', 'リンク', '配信ステータス'];
+  // ヘッダーからカラムインデックスを構築
   const headerRow = rows[0];
   const colIdx = {};
-
-  COL_DEFAULTS.forEach((name, i) => { colIdx[name] = i; });
+  COL_NAMES.forEach((name, i) => { colIdx[name] = i; }); // デフォルト位置
   headerRow.forEach((h, i) => {
     const trimmed = h.trim();
-    if (COL_DEFAULTS.includes(trimmed)) colIdx[trimmed] = i;
+    if (COL_NAMES.includes(trimmed)) colIdx[trimmed] = i;
   });
 
-  console.log('[INFO] 検出された列:', headerRow.slice(0, 9).map((h, i) => `${String.fromCharCode(65+i)}=${h}`).join(', '));
+  console.log('[INFO] 検出された列:', headerRow.map((h, i) => `${String.fromCharCode(65 + i)}=${h}`).join(', '));
 
   const get = (row, name) => (row[colIdx[name]] !== undefined ? String(row[colIdx[name]]) : '').trim();
 
-  const dataRows = rows.slice(1).map((row) => {
-    const obj = {};
-    COL_DEFAULTS.forEach((name) => { obj[name] = get(row, name); });
-    return obj;
-  });
-
-  const filtered = dataRows
-    .filter(isTarget)
-    .filter((row) => getFund(row['No']) === FUND_ID);
-
-  filtered.sort((a, b) => parseInt(a['No'], 10) - parseInt(b['No'], 10));
-
+  // データ行を処理
   const byMonth = {};
-  for (const row of filtered) {
-    const month = getYearMonth(row['公開日']);
-    if (!month) {
-      console.warn(`[WARN] No=${row['No']} の公開日を解析できません: "${row['公開日']}"`);
+  let totalCount = 0;
+  let excludedCount = 0;
+
+  for (let i = 1; i < rows.length; i++) {
+    const row = rows[i];
+    const no = get(row, 'No');
+    const title = get(row, 'タイトル');
+    const url = get(row, 'リンク');
+    const month = get(row, '掲載月');
+
+    // 必須フィールドのバリデーション
+    if (!no || !title || !url) continue;
+
+    // No の範囲チェック
+    if (String(no).startsWith('L')) continue;
+    const noNum = parseInt(no, 10);
+    if (isNaN(noNum) || noNum < 1000 || noNum >= 3000) continue;
+
+    // 掲載月がない場合は日付からフォールバック
+    let yearMonth = month;
+    if (!yearMonth) {
+      const date = get(row, '日付');
+      const m = date.match(/(\d{4})[\/\.\-](\d{1,2})/);
+      yearMonth = m ? `${m[1]}${String(m[2]).padStart(2, '0')}` : null;
+      if (!yearMonth) {
+        console.warn(`[WARN] No=${no} の掲載月を解析できません`);
+        continue;
+      }
+    }
+
+    // Notion載せない = 1 の記事は除外
+    const notionExclude = get(row, 'Notion載せない');
+    if (notionExclude === '1') {
+      excludedCount++;
       continue;
     }
-    if (!byMonth[month]) byMonth[month] = [];
-    byMonth[month].push({
-      no: row['No'],
-      company: row['会社名'],
-      cat1: '',
-      cat2: '',
-      title: row['タイトル'],
-      url: row['リンク'],
-      date: formatDate(row['公開日']),
+
+    if (!byMonth[yearMonth]) byMonth[yearMonth] = [];
+    byMonth[yearMonth].push({
+      no,
+      company: get(row, '会社名'),
+      cat1: get(row, 'カテゴリ①'),
+      cat2: get(row, 'カテゴリ②'),
+      title,
+      url,
+      date: get(row, '日付'),
       img: null,
     });
+    totalCount++;
+  }
+
+  // No 順でソート
+  for (const month of Object.keys(byMonth)) {
+    byMonth[month].sort((a, b) => parseInt(a.no, 10) - parseInt(b.no, 10));
   }
 
   const dataDir = path.join(process.cwd(), 'data');
@@ -160,9 +158,9 @@ async function main() {
   const cachePath = path.join(dataDir, 'news-cache.json');
   fs.writeFileSync(cachePath, JSON.stringify(byMonth, null, 2), 'utf-8');
 
-  const totalItems = Object.values(byMonth).reduce((sum, arr) => sum + arr.length, 0);
   const monthsSorted = Object.keys(byMonth).sort().reverse();
-  console.log(`[INFO] ${Object.keys(byMonth).length} ヶ月分、計 ${totalItems} 件を保存しました`);
+  console.log(`[INFO] ${Object.keys(byMonth).length} ヶ月分、計 ${totalCount} 件を保存しました`);
+  console.log(`[INFO] Notion除外: ${excludedCount} 件`);
   console.log(`[INFO] 掲載月一覧: ${monthsSorted.join(', ')}`);
 }
 
