@@ -55,11 +55,11 @@ jobs:
       - name: Check for changes
         id: changes
         run: |
-          if [ -n "$(git status --porcelain)" ]; then
+          if [ -n "$(git diff --name-only -- docs/)" ]; then
             echo "has_changes=true" >> "$GITHUB_OUTPUT"
           else
             echo "has_changes=false" >> "$GITHUB_OUTPUT"
-            echo "[INFO] 変更なし — PRは作成しません"
+            echo "[INFO] docs/ に変更なし — PRは作成しません"
           fi
 
       - name: Create Pull Request
@@ -71,7 +71,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -B "$BRANCH"
-          git add -A
+          git add docs/
           git commit -m "chore: update portfolio news"
           git push -f origin "$BRANCH"
 
