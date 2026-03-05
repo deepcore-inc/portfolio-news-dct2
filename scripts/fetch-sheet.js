@@ -114,6 +114,10 @@ async function main() {
     const noNum = parseInt(no, 10);
     if (isNaN(noNum) || noNum < 1000 || noNum >= 3000) continue;
 
+    // FUND_ID でフィルタ（dct1=1000番台、dct2=2000番台）
+    const fund = noNum >= 1000 && noNum < 2000 ? 'dct1' : noNum >= 2000 && noNum < 3000 ? 'dct2' : null;
+    if (fund !== FUND_ID) continue;
+
     // 掲載月がない場合は日付からフォールバック
     let yearMonth = month;
     if (!yearMonth) {
