@@ -2,7 +2,7 @@
 
 DEEPCORE DCT-2 ポートフォリオ企業のニュースを自動生成・公開するリポジトリです。
 
-**公開URL**: https://karinyoshida02.github.io/portfolio-news-dct2/
+**公開URL**: https://deepcore-inc.github.io/portfolio-news-dct2/ 
 
 ---
 
