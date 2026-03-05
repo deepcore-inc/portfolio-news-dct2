@@ -75,22 +75,29 @@ jobs:
           git commit -m "chore: update portfolio news"
           git push -f origin "$BRANCH"
 
-          # 既存PRがあればスキップ、なければ作成
-          EXISTING=$(gh pr list --head "$BRANCH" --json number --jq '.[0].number')
-          if [ -n "$EXISTING" ]; then
-            echo "[INFO] 既存PR #$EXISTING を更新しました"
-          else
-            gh pr create \
-              --title "ニュース更新プレビュー" \
-              --body "$(cat <<'EOF'
+          REPO="${{ github.repository }}"
+          PREVIEW_URL="https://raw.githack.com/${REPO}/${BRANCH}/docs/index.html"
+
+          BODY="$(cat <<EOF
           スプレッドシートBの最新データからHTMLを生成しました。
 
-          **確認手順:**
-          1. 下の Files changed タブでHTMLの差分を確認
-          2. OKならこのPRをマージ → サイトに公開されます
+          ## プレビュー
+          **[ページをプレビューする](${PREVIEW_URL})**
+
+          ## 確認手順
+          1. 上のプレビューリンクでページの見た目を確認
+          2. OKならこのPRをマージ → 公開サイトに反映されます
 
           対象月: ${{ github.event.inputs.target_months || '全月' }}
           EOF
           )"
+
+          # 既存PRがあれば本文を更新、なければ新規作成
+          EXISTING=$(gh pr list --head "$BRANCH" --json number --jq '.[0].number')
+          if [ -n "$EXISTING" ]; then
+            gh pr edit "$EXISTING" --body "$BODY"
+            echo "[INFO] 既存PR #$EXISTING を更新しました"
+          else
+            gh pr create --title "ニュース更新プレビュー" --body "$BODY"
             echo "[INFO] PRを作成しました"
           fi
