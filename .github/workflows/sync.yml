@@ -2,8 +2,8 @@ name: Sync Spreadsheet A → B (DCT-2)
 
 on:
   schedule:
-    # 毎週月曜日 午前9時 JST（= UTC 00:00）に自動実行
-    - cron: '0 0 * * 1'
+    # 毎月第1月曜日 12:00 JST（= UTC 03:00）に自動実行
+    - cron: '0 3 1-7 * 1'
   workflow_dispatch: # GitHub UI から手動実行も可能
 
 jobs:
